@@ -1,72 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/l1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical">
+    android:background="@color/white">
 
     <LinearLayout
+        android:id="@+id/lltop"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.2"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/bg_back"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.9"
-            android:orientation="horizontal">
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="10sp"
+            android:layout_weight="1.01"
+            android:background="@drawable/layout_bg_add"
+            android:visibility="gone">
 
-            <LinearLayout
-                android:id="@+id/bg_back"
+            <ImageView
+                android:id="@+id/back"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="15sp"
-                android:layout_marginBottom="10sp"
-                android:layout_weight="1.01"
-                android:background="@drawable/layout_bg_add">
-
-                <ImageView
-                    android:id="@+id/back"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:padding="15sp"
-                    android:src="@drawable/night_back_bg" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/newgame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.6"
+                android:layout_gravity="left"
                 android:gravity="left"
-                android:orientation="horizontal"
-                android:padding="5dp" />
-
-            <LinearLayout
-                android:id="@+id/setting"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="7dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="10dp" />
-            </LinearLayout>
+                android:padding="15sp"
+                android:src="@drawable/night_back_bg" />
         </LinearLayout>
 
-        <WebView
-            android:id="@+id/mainWebView"
+        <LinearLayout
+            android:id="@+id/newgame"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:orientation="horizontal" />
+
+        <LinearLayout
+            android:id="@+id/setting"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="0.1" />
+            android:layout_marginLeft="7dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="10dp" />
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+    <WebView
+        android:id="@+id/mainWebView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/lltop" />
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/ads_banner_code" />
+
+</RelativeLayout>

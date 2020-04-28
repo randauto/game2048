@@ -1,7 +1,4 @@
-package com.bip.game2048;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.InputDeviceCompat;
+package com.bip.game2048.ui;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -9,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -16,23 +14,97 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.InputDeviceCompat;
+
+import com.bip.game2048.MyConstant;
+import com.bip.game2048.R;
+import com.bip.game2048.SoundManager;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+
+import java.util.Collections;
+
 public class Game_2048_Activity extends AppCompatActivity implements View.OnClickListener {
     private static boolean DEF_FULLSCREEN = true;
+
     private static final String IS_FULLSCREEN_PREF = "is_fullscreen_pref";
+
     private static final long mTouchThreshold = 2000;
 
     /* renamed from: a */
-    LinearLayout f3526a;
+    ViewGroup rootLayout;
 
     /* renamed from: b */
-    LinearLayout f3527b;
+    LinearLayout btnBack;
 
     /* renamed from: c */
     ImageView f3528c;
     /* access modifiers changed from: private */
     public long mLastTouch;
     private WebView mWebView;
+    private AdView mAdView;
     private Toast pressBackToast;
+
+    /* access modifiers changed from: protected */
+    @SuppressLint({"SetJavaScriptEnabled", "NewApi", "ShowToast", "WrongViewCast"})
+    public void onCreate(Bundle bundle) {
+        requestWindowFeature(1);
+        super.onCreate(bundle);
+        getWindow().setFlags(1024, 1024);
+        setContentView(R.layout.activity_game_2048);
+        getWindow().getDecorView().setSystemUiVisibility(InputDeviceCompat.SOURCE_TOUCHSCREEN);
+        this.rootLayout = findViewById(R.id.l1);
+        this.btnBack = findViewById(R.id.bg_back);
+        this.f3528c = findViewById(R.id.back);
+        this.f3528c.setOnClickListener(this);
+        this.mWebView = findViewById(R.id.mainWebView);
+        WebSettings settings = this.mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
+        this.mWebView.setInitialScale(1);
+        this.mWebView.getSettings().setLoadWithOverviewMode(true);
+        this.mWebView.getSettings().setUseWideViewPort(true);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        StringBuilder sb = new StringBuilder();
+        sb.append(getFilesDir().getParentFile().getPath());
+        sb.append("/databases");
+        settings.setDatabasePath(sb.toString());
+        if (bundle != null) {
+            this.mWebView.restoreState(bundle);
+        } else {
+            LoadUrl();
+        }
+        this.mWebView.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                long currentTimeMillis = System.currentTimeMillis();
+                if (motionEvent.getAction() == 1 && Math.abs(currentTimeMillis - Game_2048_Activity.this.mLastTouch) > Game_2048_Activity.mTouchThreshold) {
+                    boolean z = !Game_2048_Activity.this.isFullScreen();
+                    Game_2048_Activity.this.saveFullScreen(z);
+                    Game_2048_Activity.this.applyFullScreen(z);
+                } else if (motionEvent.getAction() == 0) {
+                    Game_2048_Activity.this.mLastTouch = currentTimeMillis;
+                    SoundManager.playSound(3, 1.0f);
+                }
+                return false;
+            }
+        });
+
+        initAds();
+    }
+
+    private void initAds() {
+        MobileAds.initialize(this);
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("0D029E614FD6E9C2A94809F472C4255B"));
+        mAdView.loadAd(adRequest);
+    }
 
     private void LoadUrl() {
         String str = "";
@@ -48,8 +120,8 @@ public class Game_2048_Activity extends AppCompatActivity implements View.OnClic
         String str10 = "de";
         String str11 = "en";
         if (MyConstant.NIGHTMODE_SETTING == MyConstant.NIGHTMODE_ON) {
-            this.f3526a.setBackgroundColor(getResources().getColor(R.color.dark_grey));
-            this.f3527b.setBackgroundResource(R.drawable.night_back_bg);
+            this.rootLayout.setBackgroundColor(getResources().getColor(R.color.dark_grey));
+            this.btnBack.setBackgroundResource(R.drawable.night_back_bg);
             String str12 = "file:///android_asset/2048/index_night.html";
             if (string.equals(str)) {
                 this.mWebView.loadUrl(str12);
@@ -87,8 +159,8 @@ public class Game_2048_Activity extends AppCompatActivity implements View.OnClic
             }
             return;
         }
-        this.f3526a.setBackgroundColor(getResources().getColor(R.color.white));
-        this.f3527b.setBackgroundResource(R.drawable.layout_bg_add);
+        this.rootLayout.setBackgroundColor(getResources().getColor(R.color.white));
+        this.btnBack.setBackgroundResource(R.drawable.layout_bg_add);
         String str13 = "file:///android_asset/2048/index.html";
         if (string.equals(str)) {
             this.mWebView.loadUrl(str13);
@@ -161,54 +233,6 @@ public class Game_2048_Activity extends AppCompatActivity implements View.OnClic
             SoundManager.playSound(1, 1.0f);
             onBackPressed();
         }
-    }
-
-    /* access modifiers changed from: protected */
-    @SuppressLint({"SetJavaScriptEnabled", "NewApi", "ShowToast"})
-    public void onCreate(Bundle bundle) {
-        requestWindowFeature(1);
-        super.onCreate(bundle);
-        getWindow().setFlags(1024, 1024);
-        setContentView(R.layout.activity_game_2048);
-        getWindow().getDecorView().setSystemUiVisibility(InputDeviceCompat.SOURCE_TOUCHSCREEN);
-        this.f3526a = (LinearLayout) findViewById(R.id.l1);
-        this.f3527b = (LinearLayout) findViewById(R.id.bg_back);
-        this.f3528c = (ImageView) findViewById(R.id.back);
-        this.f3528c.setOnClickListener(this);
-        this.mWebView = (WebView) findViewById(R.id.mainWebView);
-        WebSettings settings = this.mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        this.mWebView.setInitialScale(1);
-        this.mWebView.getSettings().setLoadWithOverviewMode(true);
-        this.mWebView.getSettings().setUseWideViewPort(true);
-        settings.setAllowFileAccessFromFileURLs(false);
-        settings.setAllowUniversalAccessFromFileURLs(false);
-        settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
-        StringBuilder sb = new StringBuilder();
-        sb.append(getFilesDir().getParentFile().getPath());
-        sb.append("/databases");
-        settings.setDatabasePath(sb.toString());
-        if (bundle != null) {
-            this.mWebView.restoreState(bundle);
-        } else {
-            LoadUrl();
-        }
-        this.mWebView.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                long currentTimeMillis = System.currentTimeMillis();
-                if (motionEvent.getAction() == 1 && Math.abs(currentTimeMillis - Game_2048_Activity.this.mLastTouch) > Game_2048_Activity.mTouchThreshold) {
-                    boolean z = !Game_2048_Activity.this.isFullScreen();
-                    Game_2048_Activity.this.saveFullScreen(z);
-                    Game_2048_Activity.this.applyFullScreen(z);
-                } else if (motionEvent.getAction() == 0) {
-                    Game_2048_Activity.this.mLastTouch = currentTimeMillis;
-                    SoundManager.playSound(3, 1.0f);
-                }
-                return false;
-            }
-        });
     }
 
     /* access modifiers changed from: protected */
